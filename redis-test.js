@@ -4,18 +4,24 @@ import { createClient } from 'redis';
 console.log("Starting Redis publisher...");
 
 
-const redisClient = createClient({ url: 'redis://localhost:6379' });
+const redisUrl = process.env.REDIS_URL;
+const redisClient = createClient({ url: redisUrl });
+
+// const redisClient = createClient({ host: 'redis', port: 6379 });
 
 // Connect to Redis
-await redisClient.connect();
+try {
+  await redisClient.connect();
+  console.log("Connected to Redis successfully");
+} catch (error) {
+  console.log("Error connecting to Redis:", error);
+}
+
 
 console.log("Connected to Redis");
 
 // Publish a message when a user is created
 async function createUser(userData) {
-  // 1. Save user to DB (e.g., PostgreSQL/MongoDB)
-  // await db.saveUser(userData);
-
   await test();
 
   // 2. Publish event to Redis channel

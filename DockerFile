@@ -1,8 +1,14 @@
-FROM node:23
+# FROM node:23
+# WORKDIR /app
+# COPY package*.json ./
+# RUN npm install
+# EXPOSE 3001
+# COPY . .
+# CMD ["node","index.js"]
+
+FROM node:23-slim
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
-EXPOSE 3001
 COPY . .
-CMD ["node","index.js"]
- 
+CMD ["node","redis-test.js"]
