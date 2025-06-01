@@ -1,34 +1,50 @@
-const User = require('./User');
-const Tag = require('./Tag');
+import User from './User';
+import Tag from './Tag';
 
 class Group {
-  constructor(groupID, users = new Set(), commonTags = new Set(), maxUsers, isFull = false) {
-    this.groupID = groupID; // int
-    this.users = users; // Set<User>
-    this.commonTags = commonTags; // Set<Tag>
-    this.maxUsers = maxUsers; // int
-    this.isFull = isFull; // boolean
+  groupID: number;
+  users: Set<User>;
+  commonTags: Set<Tag>;
+  maxUsers: number;
+  isFull: boolean;
+
+  constructor(
+    groupID: number,
+    users: Set<User> = new Set(),
+    commonTags: Set<Tag> = new Set(),
+    maxUsers: number,
+    isFull: boolean = false
+  ) {
+    this.groupID = groupID;
+    this.users = users;
+    this.commonTags = commonTags;
+    this.maxUsers = maxUsers;
+    this.isFull = isFull;
   }
 
-  toJSON() {
+  toJSON(): object {
     return {
       groupID: this.groupID,
-      users: Array.from(this.users).map(user => typeof user.toJSON === 'function' ? user.toJSON() : user),
-      commonTags: Array.from(this.commonTags).map(tag => typeof tag.toJSON === 'function' ? tag.toJSON() : tag),
+      users: Array.from(this.users).map(user =>
+        typeof (user as any).toJSON === 'function' ? (user as any).toJSON() : user
+      ),
+      commonTags: Array.from(this.commonTags).map(tag =>
+        typeof (tag as any).toJSON === 'function' ? (tag as any).toJSON() : tag
+      ),
       maxUsers: this.maxUsers,
       isFull: this.isFull,
     };
   }
 
-  static fromJSON(json) {
+  static fromJSON(json: any): Group {
     return new Group(
       json.groupID,
-      new Set(json.users), // Consider User.fromJSON for each user if needed
-      new Set(json.commonTags), // Consider Tag.fromJSON for each tag if needed
+      new Set(json.users?.map((u: any) => User.fromJSON ? User.fromJSON(u) : u)),
+      new Set(json.commonTags?.map((t: any) => Tag.fromJSON ? Tag.fromJSON(t) : t)),
       json.maxUsers,
       json.isFull
     );
   }
 }
 
-module.exports = Group;
+export default Group;

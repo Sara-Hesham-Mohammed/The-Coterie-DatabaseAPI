@@ -29,7 +29,7 @@ async function addNewMember(session, member) {
   console.log("New Member added:", result.records[0].get("m").properties);
 }
 
-// Update FIX IT TO BE A DYNAMIC UPDATE FN 
+// Update
 async function updateMember(session, id, name) {
   await session.run(
     "MATCH (m:Member {id: $id}) SET m.name = $name RETURN m",
