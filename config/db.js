@@ -1,5 +1,7 @@
 import env from "dotenv";
 import neo4j from "neo4j-driver";
+import { User } from "../dataclasses/User.js";
+import { Event } from "../dataclasses/Event.js";
 
 env.config({
   path: "./config/.env",
@@ -21,12 +23,33 @@ async function testConnection(session) {
 }
 
 // fix this to match whatever data you want
-async function addNewMember(session, member) {
+async function addNewMember(session, user) {
+  if (!(user instanceof User)) {
+    throw new Error('Member must be an instance of User class');
+  }
+
   const result = await session.run(
-    `CREATE (m:Member {fullName: $name, country: $country, age: $age }) RETURN m`,
-    { name: member.name, country: member.country, age: member.age }
+    `CREATE (m:Member {
+      userID: $userID,
+      name: $name,
+      dateOfBirth: $dateOfBirth,
+      gender: $gender,
+      location: $location,
+      phoneNumber: $phoneNumber,
+      email: $email
+    }) RETURN m`,
+    {
+      userID: user.userID,
+      name: user.name,
+      dateOfBirth: user.dateOfBirth.toISOString(),
+      gender: user.gender,
+      location: JSON.stringify(user.location),
+      phoneNumber: user.phoneNumber,
+      email: user.email
+    }
   );
   console.log("New Member added:", result.records[0].get("m").properties);
+  return result.records[0].get("m").properties;
 }
 
 // Update FIX IT TO BE A DYNAMIC UPDATE FN 
@@ -84,12 +107,25 @@ async function getFriendsOfFriends(session, member, event) {
 
 /******************************** EVENTS FNS *********************************/
 // fix this to match whatever data you want
-async function addNewEvent(session, title, country, time, category) {
+async function addNewEvent(session, event) {
+  if (!(event instanceof Event)) {
+    throw new Error('Event must be an instance of Event class');
+  }
+
   const result = await session.run(
-    `CREATE (e:Event {title: $title, country: $country, time: $time, category: $category }) RETURN e`,
-    { title: title, country: country, time: time, category: category }
+    `CREATE (e:Event {
+      id: $id,
+      name: $name,
+      location: $location
+    }) RETURN e`,
+    {
+      id: event.id,
+      name: event.name,
+      location: JSON.stringify(event.location)
+    }
   );
   console.log("New Event added:", result.records[0].get("e").properties);
+  return result.records[0].get("e").properties;
 }
 
 async function removeEvent(session, eID) {
