@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-
-import { Member } from "./DataClasses/User.js";
+import { User } from "./DataClasses/User.js";
 import { Event } from "./DataClasses/Event.js";
 
 // Import the database connection function
@@ -14,7 +13,7 @@ import {
   createFriendship,
   attendEvent,
   getFriendsOfFriends,
-  query,
+  // query,
   driver,
 } from "./config/db.js";
 

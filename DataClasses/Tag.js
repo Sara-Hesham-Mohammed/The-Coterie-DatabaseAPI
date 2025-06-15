@@ -1,4 +1,4 @@
-class Tag {
+export class Tag {
   constructor(tagID, tagName, tagCategory) {
     this.tagID = tagID; // int
     this.tagName = tagName; // String
@@ -23,5 +23,3 @@ class Tag {
     );
   }
 }
-
-module.exports = Tag;

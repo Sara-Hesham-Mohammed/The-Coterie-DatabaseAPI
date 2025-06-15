@@ -1,7 +1,7 @@
-const User = require('./User');
-const Tag = require('./Tag');
+import { User } from './User.js';
+import { Tag } from './Tag.js';
 
-class Group {
+export class Group {
   constructor(groupID, users = new Set(), commonTags = new Set(), maxUsers, isFull = false) {
     this.groupID = groupID; // int
     this.users = users; // Set<User>
@@ -30,5 +30,3 @@ class Group {
     );
   }
 }
-
-module.exports = Group;

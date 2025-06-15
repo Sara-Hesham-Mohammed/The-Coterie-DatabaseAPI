@@ -1,4 +1,4 @@
-class Person {
+export class Person {
   constructor(name, dateOfBirth, gender, location, phoneNumber, email) {
     this.name = name;
     this.dateOfBirth = dateOfBirth; // Should be a Date object

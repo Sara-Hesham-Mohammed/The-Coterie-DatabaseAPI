@@ -1,8 +1,9 @@
 // Make sure to import Person, Tag, and  if needed
-const Person = require('./Person');
-const Tag = require('./Tag');
+import { Person } from './Person.js';
+import { Tag } from './Tag.js';
+import { Event } from './Event.js';
 
-class User extends Person {
+export class User extends Person {
   constructor(userID, name, dateOfBirth, gender, location, phoneNumber, email, tags = new Set(Tag), attendedEvents = new Set(Event)) {
     super(name, dateOfBirth, gender, location, phoneNumber, email);
     this.userID = userID; // int

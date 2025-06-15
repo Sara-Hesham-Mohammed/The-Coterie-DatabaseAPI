@@ -1,5 +1,5 @@
 //add additional info
-class Event {
+export class Event {
   constructor(id, name, location) {
     this.id = id;
     this.name = name;

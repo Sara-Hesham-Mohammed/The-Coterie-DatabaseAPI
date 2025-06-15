@@ -1,7 +1,7 @@
 import env from "dotenv";
 import neo4j from "neo4j-driver";
-import { User } from "../dataclasses/User.js";
-import { Event } from "../dataclasses/Event.js";
+import { User } from "../DataClasses/User.js";
+import { Event } from "../DataClasses/Event.js";
 
 env.config({
   path: "./config/.env",
@@ -13,47 +13,65 @@ const USER = process.env.AURA_DB_USER;
 const PASSWORD = process.env.AURA_DB_PASS;
 
 // Create a Neo4j driver instance
-const driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD));
+export const driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD));
 
-async function testConnection(session) {
-  const result = await session.run(
-    'RETURN "Connected to Neo4j AuraDB!" AS message'
-  );
-  console.log(result.records[0].get("message"));
+// Session management function
+export async function withSession(operation) {
+  const session = driver.session();
+  try {
+    return await operation(session);
+  } catch (error) {
+    console.error("Database operation error:", error);
+    throw error;
+  } finally {
+    await session.close();
+  }
+}
+
+// Test connection using session management
+async function testConnection() {
+  return await withSession(async (session) => {
+    const result = await session.run(
+      'RETURN "Connected to Neo4j AuraDB!" AS message'
+    );
+    console.log(result.records[0].get("message"));
+    return result.records[0].get("message");
+  });
 }
 
 // CREATE - Add new member
-async function addNewMember(session, user) {
+async function addNewMember(user) {
   if (!(user instanceof User)) {
     throw new Error('Member must be an instance of User class');
   }
 
-  const result = await session.run(
-    `CREATE (m:Member {
-      userID: $userID,
-      name: $name,
-      dateOfBirth: $dateOfBirth,
-      gender: $gender,
-      location: $location,
-      phoneNumber: $phoneNumber,
-      email: $email
-    }) RETURN m`,
-    {
-      userID: user.userID,
-      name: user.name,
-      dateOfBirth: user.dateOfBirth.toISOString(),
-      gender: user.gender,
-      location: JSON.stringify(user.location),
-      phoneNumber: user.phoneNumber,
-      email: user.email,
-      tags: user.tags || [],
-      interests_embedding: user.interests || [],
-      location_lang_embedding: user.location_lang_embedding || []
-
-    }
-  );
-  console.log("New Member added:", result.records[0].get("m").properties);
-  return result.records[0].get("m").properties;
+  return await withSession(async (session) => {
+    const result = await session.run(
+      `CREATE (m:Member {
+        userID: $userID,
+        name: $name,
+        dateOfBirth: $dateOfBirth,
+        gender: $gender,
+        location: $location,
+        phoneNumber: $phoneNumber,
+        email: $email
+      }) RETURN m`,
+      {
+        userID: user.userID,
+        name: user.name,
+        dateOfBirth: user.dateOfBirth.toISOString(),
+        gender: user.gender,
+        location: JSON.stringify(user.location),
+        phoneNumber: user.phoneNumber,
+        email: user.email,
+        tags: user.tags || [],
+        interests_embedding: user.interests || [],
+        location_lang_embedding: user.location_lang_embedding || []
+      }
+    );
+    console.log("New Member added:", result.records[0].get("m").properties);
+    return result.records[0].get("m").properties;
+  });
 }
 
 // READ - Get member by ID
@@ -247,5 +265,4 @@ export {
   updateEvent,
   removeEvent,
   attendEvent,
-  driver
 };

@@ -1,6 +1,6 @@
-const Person = require('./Person');
+import { Person } from './Person.js';
 
-class Admin extends Person {
+export class Admin extends Person {
   constructor(name, dateOfBirth, gender, location, phoneNumber, email) {
     if (Admin.instance) {
       return Admin.instance;
@@ -31,5 +31,3 @@ class Admin extends Person {
     return true;
   }
 }
-
-module.exports = Admin;
