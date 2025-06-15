@@ -1,0 +1,48 @@
+name: Docker Neo4j Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: neo4j-image
+      IMAGE_TAG: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Docker image
+        run: |
+          docker build . --file Dockerfile --tag $IMAGE_NAME:$IMAGE_TAG
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Tag the image
+        run: docker tag $IMAGE_NAME:$IMAGE_TAG ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+      - name: Push to Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: neo4j-image
+      IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+    steps:
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          IMAGE_NAME=neo4j-image
+          IMAGE_TAG=${{ github.run_number }}
+          DOCKER_USER=${{ secrets.DOCKERHUB_USERNAME }}
+          sudo docker rm -f neo4j-container || true
+          sudo docker rmi $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG || true
+          sudo docker pull $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+          sudo docker run --name neo4j-container -p 7474:7474 --restart=always -d $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG 
