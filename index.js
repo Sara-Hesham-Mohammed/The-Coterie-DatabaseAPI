@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { User } from "./DataClasses/User.js";
 import { Event } from "./DataClasses/Event.js";
 
@@ -17,14 +18,23 @@ import {
   driver,
 } from "./config/db.js";
 
-
-
 // App setup
 const app = express();
 dotenv.config({
   path: "./config/.env",
 });
 const PORT = process.env.PORT;
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: ['http://localhost:3001', 'http://10.0.2.2:3001', 'http://98.66.138.229:3001'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// Parse JSON bodies
+app.use(express.json());
 
 app.get("/", async (req, res) => {
   res.send("HI FROM DB");
@@ -70,7 +80,7 @@ app.delete("/users/:id", async (req, res) => {
   });
 });
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   //init server first THEN DB....for obvious reasons
   console.log(`Listening on port ${PORT}`);
   await testConnection();
