@@ -45,4 +45,4 @@ jobs:
           sudo docker rm -f neo4j-container || true
           sudo docker rmi $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG || true
           sudo docker pull $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
-          sudo docker run --name neo4j-container -p 7474:7474 --restart=always -d $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG 
+          sudo docker run --name neo4j-container -p 3001:3001 --restart=always -d $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG 

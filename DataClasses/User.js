@@ -4,11 +4,11 @@ import { Tag } from './Tag.js';
 import { Event } from './Event.js';
 
 export class User extends Person {
-  constructor(userID, name, dateOfBirth, gender, location, phoneNumber, email, tags = new Set(Tag), attendedEvents = new Set(Event)) {
+  constructor(userID, name, dateOfBirth, gender, location, phoneNumber, email, tags = new Set(), attendedEvents = new Set()) {
     super(name, dateOfBirth, gender, location, phoneNumber, email);
     this.userID = userID; // int
     this.tags = tags; // Set<Tag>
-    this.attendedEvents = attendedEvents; // Array of location
+    this.attendedEvents = attendedEvents; // Set<Event>
   }
 
   // Method to convert the class instance to JSON
@@ -24,7 +24,7 @@ export class User extends Person {
       phoneNumber: this.phoneNumber,
       email: this.email,
       tags: Array.from(this.tags).map(tag => typeof tag.toJSON === 'function' ? tag.toJSON() : tag),
-      attendedEvents: this.attendedEvents.map(event => typeof event.toJSON === 'function' ? event.toJSON() : event),
+      attendedEvents: Array.from(this.attendedEvents).map(event => typeof event.toJSON === 'function' ? event.toJSON() : event),
     };
   }
 
@@ -38,8 +38,8 @@ export class User extends Person {
       json.location, // Consider Location.fromJSON if needed
       json.phoneNumber,
       json.email,
-      new Set(json.tags), // Consider Tag.fromJSON for each tag if needed
-      json.attendedEvents // Consider .fromJSON for each event if needed
+      new Set(json.tags || []), // Consider Tag.fromJSON for each tag if needed
+      new Set(json.attendedEvents || []) // Consider .fromJSON for each event if needed
     );
   }
 }

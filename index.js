@@ -6,9 +6,9 @@ import { Event } from "./DataClasses/Event.js";
 // Import the database connection function
 import {
   testConnection,
-  addNewMember,
+  addNewUser,
   addNewEvent,
-  removeMember,
+  removeUser,
   removeEvent,
   createFriendship,
   attendEvent,
@@ -34,38 +34,38 @@ app.get("/recommendations", async (req, res) => {
   res.send("RECOMMENDATIONS SHOULD SHOW UP HERE");
 });
 
-app.get("/all-members", async (req, res) => {
+app.get("/all-users", async (req, res) => {
   await sessionManage(async (session) => {
-    // query for all memebers
-    res.send("All members endpoint");
+    // query for all users
+    res.send("All users endpoint");
   });
 });
 
-// Create Member
-app.post("/members", async (req, res) => {
+// Create User
+app.post("/users", async (req, res) => {
   const { id, name, country, age } = req.body;
-  let member = Member(id, name, country, age);
+  let user = new User(id, name, country, age);
   await sessionManage(async (session) => {
-    await addNewMember(name, country, age, session);
+    await addNewUser(user);
     res.sendStatus(201);
   });
 });
 
-// Update Member
-app.put("/members/:id", async (req, res) => {
+// Update User
+app.put("/users/:id", async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   await sessionManage(async (session) => {
-    await updateMember(id, name, session);
+    await updateUser(id, { name });
     res.sendStatus(200);
   });
 });
 
-// Delete Member
-app.delete("/members/:id", async (req, res) => {
+// Delete User
+app.delete("/users/:id", async (req, res) => {
   const { id } = req.params;
   await sessionManage(async (session) => {
-    await removeMember(id, session);
+    await removeUser(id);
     res.sendStatus(200);
   });
 });
